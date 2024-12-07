@@ -1,12 +1,26 @@
-import { z } from "zod";
+import { z, ZodTypeAny } from "zod";
 
-const MAX_FILE_SIZE = 5000000; // 5MB
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/jpg",
-];
+const validImageFile = z
+  .custom<File | undefined>()
+  .refine((file) => file, "Image is required")
+  .refine(
+    (file) => !file || (file instanceof File && file.type.startsWith("image/")),
+    "Must be an image file"
+  )
+  .refine((file) => {
+    return !file || file.size < 1024 * 1024 * 2;
+  }, "Image must be less than 2MB");
+
+export const numericString = (schema: ZodTypeAny) =>
+  z.preprocess((a) => {
+    if (typeof a === "string") {
+      return parseInt(a, 10);
+    } else if (typeof a === "number") {
+      return a;
+    } else {
+      return undefined;
+    }
+  }, schema);
 
 export const addRoomSchema = z.object({
   name: z.string().min(2, {
@@ -15,12 +29,16 @@ export const addRoomSchema = z.object({
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
-  sqft: z.number().min(1, {
-    message: "Square footage must be at least 1.",
-  }),
-  capacity: z.number().min(1, {
-    message: "Capacity must be at least 1.",
-  }),
+  sqft: numericString(
+    z.number({
+      message: "Sqft must be a valid number.",
+    })
+  ),
+  capacity: numericString(
+    z.number({
+      message: "Capacity must be a valid number.",
+    })
+  ),
   location: z.string().min(2, {
     message: "Location must be at least 2 characters.",
   }),
@@ -28,18 +46,10 @@ export const addRoomSchema = z.object({
     message: "Address must be at least 5 characters.",
   }),
   amenities: z.string(),
-  pricePerHour: z.number().min(0, {
-    message: "Price per hour must be a positive number.",
-  }),
-  image: z
-    .any()
-    .refine((files) => files?.length == 1, "Image is required.")
-    .refine(
-      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Max file size is 5MB.`
-    )
-    .refine(
-      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      ".jpg, .jpeg, .png and .webp files are accepted."
-    ),
+  pricePerHour: numericString(
+    z.number({
+      message: "Price per hour must be a valid number.",
+    })
+  ),
+  image: validImageFile,
 });

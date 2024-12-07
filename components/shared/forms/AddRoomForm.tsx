@@ -21,6 +21,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { addRoomSchema } from "@/lib/validations";
 
 import React from "react";
+import { toast } from "sonner";
+import { addRoom } from "@/lib/actions/room.actions";
 
 const AddRoomForm = () => {
   const router = useRouter();
@@ -31,13 +33,12 @@ const AddRoomForm = () => {
     defaultValues: {
       name: "",
       description: "",
-      sqft: 0,
-      capacity: 0,
+      sqft: "0",
+      capacity: "0",
       location: "",
       address: "",
       amenities: "",
-      pricePerHour: 0,
-      image: "",
+      pricePerHour: "0",
     },
   });
 
@@ -45,8 +46,8 @@ const AddRoomForm = () => {
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      if (name === "image" && value.image?.[0]) {
-        const file = value.image[0];
+      if (name === "image" && value.image) {
+        const file = value.image;
         const reader = new FileReader();
         reader.onloadend = () => {
           setImagePreview(reader.result as string);
@@ -57,15 +58,21 @@ const AddRoomForm = () => {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  function onSubmit(values: z.infer<typeof addRoomSchema>) {
-    const filteredData = Object.fromEntries(
-      Object.entries(values).filter(([key, value]) => {
-        if (typeof value === "string") return value.trim() !== "";
-        if (typeof value === "number") return value !== 0;
-        return true;
-      })
-    );
-    console.log(filteredData);
+  async function onSubmit(values: z.infer<typeof addRoomSchema>) {
+    const formData = new FormData();
+
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        formData.append(key, value);
+      }
+    });
+    try {
+      await addRoom(formData);
+      toast.success("Room has been successfully added.");
+      router.push("/");
+    } catch (error) {
+      toast.error("Something went wrong, please try again");
+    }
   }
   return (
     <Form {...form}>
@@ -195,17 +202,17 @@ const AddRoomForm = () => {
         <FormField
           control={form.control}
           name="image"
-          render={({ field: { onChange, value, ...rest } }) => (
+          render={({ field: { value, ...fieldValues } }) => (
             <FormItem>
               <FormLabel>Room Image</FormLabel>
               <FormControl>
                 <Input
                   type="file"
-                  accept="image/*"
+                  {...fieldValues}
                   onChange={(e) => {
-                    onChange(e.target.files);
+                    const file = e.target.files?.[0];
+                    fieldValues.onChange(file);
                   }}
-                  {...rest}
                 />
               </FormControl>
               <FormDescription>
@@ -227,8 +234,12 @@ const AddRoomForm = () => {
             />
           </div>
         )}
-        <Button type="submit" className="w-full">
-          Add Room
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? "Adding room..." : "Add Room"}
         </Button>
       </form>
     </Form>

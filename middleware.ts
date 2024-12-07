@@ -1,6 +1,11 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+// you can add multiple pages to protect
+const isProtectedRoute = createRouteMatcher(["/my-rooms(.*)", "/add-room(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) await auth.protect();
+});
 
 export const config = {
   matcher: [

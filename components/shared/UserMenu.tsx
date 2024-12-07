@@ -23,7 +23,7 @@ const UserMenu = () => {
         <UserButton.Link
           label="My Rooms"
           labelIcon={<House size={15} />}
-          href="/my-room"
+          href="/my-rooms"
         />
         <UserButton.Action label="manageAccount" />
       </UserButton.MenuItems>

@@ -36,7 +36,7 @@ model Room {
   location     String
   address      String
   amenities    String?
-  pricePerHour Decimal
+  pricePerHour Float
   image        String
 
   userId String

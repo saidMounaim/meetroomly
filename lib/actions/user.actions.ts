@@ -55,3 +55,18 @@ export async function deleteUser(userId: string) {
     console.log("Error to delete a user", error);
   }
 }
+
+export async function getMyRooms(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({ where: { clerkId: userId } });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const rooms = await prisma.room.findMany({
+      where: { userId },
+    });
+    return rooms;
+  } catch (error) {
+    console.log("Error to fetch rooms", error);
+  }
+}
