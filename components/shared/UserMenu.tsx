@@ -18,7 +18,6 @@ const UserMenu = () => {
           labelIcon={<HousePlus size={15} />}
           href="/add-room"
         />
-        <UserButton.Action label="manageAccount" />
       </UserButton.MenuItems>
       <UserButton.MenuItems>
         <UserButton.Link
