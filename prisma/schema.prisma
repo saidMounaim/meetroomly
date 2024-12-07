@@ -20,6 +20,27 @@ model User {
   firstName String?
   lastName  String?
   image     String?
+  rooms     Room[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id           String  @id @default(cuid())
+  name         String
+  slug         String  @unique
+  description  String
+  sqft         Int
+  capacity     Int
+  location     String
+  address      String
+  amenities    String?
+  pricePerHour Decimal
+  image        String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [clerkId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
