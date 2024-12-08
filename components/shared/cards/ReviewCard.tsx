@@ -1,18 +1,14 @@
 import { StarIcon } from "lucide-react";
 import React from "react";
+import { ReviewsProps } from "../Reviews";
 
-interface ReviewCardProps {
-  id: string;
-  author: string;
-  rating: number;
-  comment: string;
-}
-
-const ReviewCard = ({ review }: { review: ReviewCardProps }) => {
+const ReviewCard = ({ review }: { review: ReviewsProps }) => {
   return (
     <div className="mb-4 pb-4 border-b last:border-b-0">
       <div className="flex items-center mb-2">
-        <span className="font-semibold mr-2">{review.author}</span>
+        <span className="font-semibold mr-2">
+          {review.user.firstName} {review.user.lastName}
+        </span>
         <div className="flex">
           {[...Array(5)].map((_, i) => (
             <StarIcon

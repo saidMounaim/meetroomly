@@ -14,22 +14,23 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  clerkId   String  @unique
-  email     String  @unique
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
   firstName String?
   lastName  String?
   image     String?
   rooms     Room[]
+  reviews   Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Room {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   name         String
-  slug         String  @unique
+  slug         String   @unique
   description  String
   sqft         Int
   capacity     Int
@@ -38,10 +39,23 @@ model Room {
   amenities    String?
   pricePerHour Float
   image        String
+  reviews      Review[]
 
   userId String
   user   User   @relation(fields: [userId], references: [clerkId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id      String @id @default(uuid())
+  rating  Int
+  comment String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [clerkId])
+
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id])
 }

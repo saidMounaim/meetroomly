@@ -58,7 +58,16 @@ export async function addRoom(formData: FormData) {
 
 export async function getRoomBySlug(slug: string) {
   try {
-    const room = await prisma.room.findUnique({ where: { slug } });
+    const room = await prisma.room.findUnique({
+      where: { slug },
+      include: {
+        reviews: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
     return room;
   } catch (error) {
     console.log("Error to fetch room", error);

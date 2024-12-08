@@ -7,12 +7,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React from "react";
-import { Room } from "@prisma/client";
 import ReviewForm from "./forms/ReviewForm";
 import Reviews from "./Reviews";
 import ReservationForm from "./forms/ReservationForm";
+import { auth } from "@clerk/nextjs/server";
 
-const RoomDetails = ({ room }: { room: Room }) => {
+const RoomDetails = async ({ room }: { room: any }) => {
+  const { userId } = await auth();
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="mb-8">
@@ -59,8 +60,14 @@ const RoomDetails = ({ room }: { room: Room }) => {
 
       <div className="flex flex-wrap gap-4">
         <div className="flex-1">
-          <Reviews />
-          <ReviewForm />
+          <Reviews reviews={room.reviews} />
+          {userId ? (
+            <ReviewForm roomId={room.id as string} />
+          ) : (
+            <h4 className="tracking-tight text-2xl font-bold text-blue-900">
+              You need to log in to add a review.
+            </h4>
+          )}
         </div>
         <div className="flex-1 max-h-max">
           <ReservationForm />

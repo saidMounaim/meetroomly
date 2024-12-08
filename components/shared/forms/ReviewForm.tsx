@@ -2,21 +2,41 @@
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { StarIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { addReview } from "@/lib/actions/reviews.actions";
+import { usePathname } from "next/navigation";
 
-const ReviewForm = () => {
+const ReviewForm = ({ roomId }: { roomId: string }) => {
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 5,
     comment: "",
   });
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("New review:", newReview);
+    if (!newReview.comment || !newReview.rating) {
+      toast.error("Please fill in all fields");
+    } else {
+      setLoading(true);
+      try {
+        await addReview({ ...newReview, roomId }, pathname);
+        toast.success("Rating added successfully");
+        setNewReview({
+          rating: 5,
+          comment: "",
+        });
+      } catch (error) {
+        toast.error("Something went wrong, please try again");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
   return (
     <Card>
@@ -54,7 +74,9 @@ const ReviewForm = () => {
               required
             />
           </div>
-          <Button type="submit">Submit Review</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Submitting Review" : "Submit Review"}
+          </Button>
         </form>
       </CardContent>
     </Card>
