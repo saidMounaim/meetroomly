@@ -1,6 +1,8 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import ReviewCard from "./cards/ReviewCard";
+import { auth } from "@clerk/nextjs/server";
+import ReviewCardSkeleton from "./skeletons/ReviewCardSkeleton";
 
 export interface ReviewsProps {
   id: string;
@@ -15,7 +17,8 @@ export interface ReviewsProps {
   };
 }
 
-const Reviews = ({ reviews }: { reviews: ReviewsProps[] }) => {
+const Reviews = async ({ reviews }: { reviews: ReviewsProps[] }) => {
+  const { userId } = await auth();
   return (
     <Card className="mb-8">
       <CardHeader>
@@ -24,9 +27,16 @@ const Reviews = ({ reviews }: { reviews: ReviewsProps[] }) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
-        ))}
+        {reviews?.length === 0 && (
+          <h2 className="text-2xl font-medium text-blue-900 mt-2">
+            There are no reviews yet.
+          </h2>
+        )}
+        <Suspense fallback={<ReviewCardSkeleton />}>
+          {reviews.map((review) => (
+            <ReviewCard key={review.id} review={review} userId={userId!} />
+          ))}
+        </Suspense>
       </CardContent>
     </Card>
   );

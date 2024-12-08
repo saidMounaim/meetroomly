@@ -5,13 +5,7 @@ import { House, HousePlus } from "lucide-react";
 
 const UserMenu = () => {
   return (
-    <UserButton
-      appearance={{
-        elements: {
-          avatarBox: "w-10 h-10",
-        },
-      }}
-    >
+    <UserButton>
       <UserButton.MenuItems>
         <UserButton.Link
           label="Add Room"

@@ -74,3 +74,21 @@ export async function getRoomBySlug(slug: string) {
     throw new Error("Error to fecth room");
   }
 }
+
+export async function getAllRooms() {
+  try {
+    const rooms = await prisma.room.findMany({
+      include: {
+        reviews: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+    return rooms;
+  } catch (error) {
+    console.log("Error to fetch rooms", error);
+    throw new Error("Error to fecth rooms");
+  }
+}

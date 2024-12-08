@@ -1,9 +1,11 @@
 import RoomCard, { RoomCardProps } from "@/components/shared/cards/RoomCard";
+import MyRoomsList from "@/components/shared/MyRoomsList";
+import RoomCardSkeleton from "@/components/shared/skeletons/RoomCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { getMyRooms } from "@/lib/actions/user.actions";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 
 const MyRoomsPage = async () => {
   const { userId } = await auth();
@@ -16,11 +18,14 @@ const MyRoomsPage = async () => {
           <Link href="/add-room">Add New Room</Link>
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {rooms?.map((room: RoomCardProps) => (
-          <RoomCard key={room.id} room={room} />
-        ))}
-      </div>
+      {rooms?.length === 0 && (
+        <h2 className="text-2xl font-medium text-blue-900 mt-2">
+          There are no rooms yet.
+        </h2>
+      )}
+      <Suspense fallback={<RoomCardSkeleton />}>
+        <MyRoomsList rooms={rooms} />
+      </Suspense>
     </div>
   );
 };
