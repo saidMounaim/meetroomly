@@ -55,3 +55,13 @@ export async function addRoom(formData: FormData) {
     throw new Error("Error to create a room");
   }
 }
+
+export async function getRoomBySlug(slug: string) {
+  try {
+    const room = await prisma.room.findUnique({ where: { slug } });
+    return room;
+  } catch (error) {
+    console.log("Error to fetch room", error);
+    throw new Error("Error to fecth room");
+  }
+}

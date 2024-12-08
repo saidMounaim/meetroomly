@@ -38,7 +38,7 @@ const RoomCard = ({ room }: { room: RoomCardProps }) => {
       </CardContent>
       <CardFooter>
         <Button asChild className="w-full">
-          <Link href={`/rooms/${room.slug}`}>View Details</Link>
+          <Link href={`/room/${room.slug}`}>View Details</Link>
         </Button>
       </CardFooter>
     </Card>
