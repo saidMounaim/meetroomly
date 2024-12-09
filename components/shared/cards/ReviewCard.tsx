@@ -46,13 +46,15 @@ const ReviewCard = ({
             />
           ))}
         </div>
-        <Button
-          variant={"destructive"}
-          className="ml-4"
-          onClick={handleDeleteReview}
-        >
-          <Trash2 />
-        </Button>
+        {userId && (
+          <Button
+            variant={"destructive"}
+            className="ml-4"
+            onClick={handleDeleteReview}
+          >
+            <Trash2 />
+          </Button>
+        )}
       </div>
       <p>{review.comment}</p>
     </div>
