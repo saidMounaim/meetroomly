@@ -46,7 +46,7 @@ const ReviewCard = ({
             />
           ))}
         </div>
-        {userId && (
+        {userId === review.user.id && (
           <Button
             variant={"destructive"}
             className="ml-4"

@@ -10,6 +10,7 @@ import React, { Suspense } from "react";
 const MyRoomsPage = async () => {
   const { userId } = await auth();
   const rooms = await getMyRooms(userId!);
+
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
       <div className="flex justify-between items-center mb-6">

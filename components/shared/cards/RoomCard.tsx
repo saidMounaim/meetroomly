@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import DeleteRoomButton from "../DeleteRoomButton";
 
 export interface RoomCardProps {
   id: string;
@@ -17,9 +18,18 @@ export interface RoomCardProps {
   slug: string;
   capacity: number;
   pricePerHour: number;
+  user: {
+    clerkId: string;
+  };
 }
 
-const RoomCard = ({ room }: { room: RoomCardProps }) => {
+const RoomCard = ({
+  room,
+  userId,
+}: {
+  room: RoomCardProps;
+  userId: string;
+}) => {
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -36,10 +46,13 @@ const RoomCard = ({ room }: { room: RoomCardProps }) => {
         <p className="text-gray-600">Capacity: {room.capacity} people</p>
         <p className="text-gray-600">${room.pricePerHour}/hour</p>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-1">
         <Button asChild className="w-full">
           <Link href={`/room/${room.slug}`}>View Details</Link>
         </Button>
+        {userId === room.user?.clerkId && (
+          <DeleteRoomButton roomId={room.id} userId={room.user.clerkId} />
+        )}
       </CardFooter>
     </Card>
   );

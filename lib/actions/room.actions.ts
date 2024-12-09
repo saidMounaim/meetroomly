@@ -6,6 +6,7 @@ import { generateUniqueSlug } from "../utils";
 import { addRoomSchema } from "../validations";
 import { uploadImageToCloudinary } from "./cloudinary.actions";
 import { RoomsListProps } from "@/components/shared/RoomsList";
+import { revalidateTag } from "next/cache";
 
 export async function addRoom(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -106,6 +107,7 @@ export async function getAllRooms({ where }: { where: RoomsListProps }) {
         ],
       },
       include: {
+        user: true,
         reviews: {
           include: {
             user: true,
@@ -117,5 +119,25 @@ export async function getAllRooms({ where }: { where: RoomsListProps }) {
   } catch (error) {
     console.log("Error to fetch rooms", error);
     throw new Error("Error to fecth rooms");
+  }
+}
+
+export async function deleteRoom(
+  roomId: string,
+  userId: string,
+  pathname: string
+) {
+  try {
+    const room = await prisma.room.findUnique({ where: { id: roomId } });
+    if (!room) {
+      throw new Error("Room not found");
+    }
+    if (room.userId !== userId) {
+      throw new Error("Unauthorized to delete this review");
+    }
+    await prisma.room.delete({ where: { id: room.id } });
+    revalidateTag(pathname);
+  } catch (error) {
+    console.log("Error to delete a room", error);
   }
 }

@@ -64,6 +64,9 @@ export async function getMyRooms(userId: string) {
     }
     const rooms = await prisma.room.findMany({
       where: { userId },
+      include: {
+        user: true,
+      },
     });
     return rooms;
   } catch (error) {
