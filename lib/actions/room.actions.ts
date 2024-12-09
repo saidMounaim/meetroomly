@@ -5,6 +5,7 @@ import prisma from "../prisma";
 import { generateUniqueSlug } from "../utils";
 import { addRoomSchema } from "../validations";
 import { uploadImageToCloudinary } from "./cloudinary.actions";
+import { RoomsListProps } from "@/components/shared/RoomsList";
 
 export async function addRoom(formData: FormData) {
   const values = Object.fromEntries(formData.entries());
@@ -75,9 +76,35 @@ export async function getRoomBySlug(slug: string) {
   }
 }
 
-export async function getAllRooms() {
+export async function getAllRooms({ where }: { where: RoomsListProps }) {
+  const { minPrice, priceMax, query } = where;
   try {
     const rooms = await prisma.room.findMany({
+      where: {
+        AND: [
+          minPrice !== undefined
+            ? { pricePerHour: { gte: Number(minPrice) } }
+            : {},
+          priceMax !== undefined
+            ? { pricePerHour: { lte: Number(priceMax) } }
+            : {},
+          query !== undefined
+            ? {
+                OR: [
+                  {
+                    name: { contains: query, mode: "insensitive" },
+                  },
+                  {
+                    description: {
+                      contains: query,
+                      mode: "insensitive",
+                    },
+                  },
+                ],
+              }
+            : {},
+        ],
+      },
       include: {
         reviews: {
           include: {
