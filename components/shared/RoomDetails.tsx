@@ -70,7 +70,7 @@ const RoomDetails = async ({ room }: { room: any }) => {
           )}
         </div>
         <div className="flex-1 max-h-max">
-          <ReservationForm />
+          <ReservationForm roomId={room.id as string} />
         </div>
       </div>
     </div>

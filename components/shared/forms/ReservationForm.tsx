@@ -4,27 +4,76 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { toast } from "sonner";
+import { makeReservation } from "@/lib/actions/reservation.actions";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
-const ReservationForm = () => {
+const ReservationForm = ({ roomId }: { roomId: string }) => {
+  const { isSignedIn } = useAuth();
+  const pathname = usePathname();
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(undefined);
   const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(undefined);
   const [checkInTime, setCheckInTime] = useState("");
   const [checkOutTime, setCheckOutTime] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleReservation = () => {
+  const handleReservation = async () => {
+    if (!isSignedIn) {
+      toast.error("Please log in to make a reservation");
+      return;
+    }
     if (!checkInDate || !checkOutDate || !checkInTime || !checkOutTime) {
-      toast.error("Pleasee fill in all fields");
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const checkIn = new Date(`${checkInDate}`);
+      const checkOut = new Date(`${checkOutDate}`);
+
+      if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+        toast.error("Invalid date or time format");
+        return;
+      }
+
+      if (checkOut <= checkIn) {
+        toast.error("Check-out must be later than check-in");
+        return;
+      }
+      const reservationDetails = {
+        checkInDate,
+        checkOutDate,
+        checkInTime,
+        checkOutTime,
+        roomId,
+      };
+      const reservationRes = await makeReservation(
+        reservationDetails,
+        pathname
+      );
+      if (reservationRes === undefined) {
+        toast.error(
+          "This room is already reserved for the selected date and time."
+        );
+      } else {
+        toast.success("Reservation successfully validated");
+        setCheckInDate(undefined);
+        setCheckOutDate(undefined);
+        setCheckInTime("");
+        setCheckOutTime("");
+      }
+    } catch (error) {
+      console.error("Error handling reservation:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <Card>
       <CardHeader>
@@ -73,12 +122,14 @@ const ReservationForm = () => {
             </div>
           </div>
         </div>
-      </CardContent>
-      <CardFooter>
-        <Button onClick={handleReservation} className="w-full">
-          Reserve Room
+        <Button
+          onClick={handleReservation}
+          className="w-full mt-3"
+          disabled={loading}
+        >
+          {loading ? "Processing reservation..." : "Reserve Room"}
         </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 };
