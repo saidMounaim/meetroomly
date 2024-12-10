@@ -10,6 +10,7 @@ export interface ReviewsProps {
   comment: string;
   user: {
     id: string;
+    clerkId: string;
     firstName: string;
     lastName: string;
     email: string;
